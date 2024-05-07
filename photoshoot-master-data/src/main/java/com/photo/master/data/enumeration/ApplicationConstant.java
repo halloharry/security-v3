@@ -15,6 +15,7 @@ public final class ApplicationConstant {
         public static final String LOGIN = "/authenticated";
         public static final String REFRESH_TOKEN = "/refresh/token";
         public static final String VERIFY = "/verify/user";
+        public static final String LOGOUT = "/logout";
     }
 
 }

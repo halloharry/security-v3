@@ -1,6 +1,8 @@
 package com.photo.auth.security.service;
 
 import com.photo.master.data.dao.IAuthTokenDao;
+import com.photo.master.data.util.IResultDto;
+import com.photo.master.data.util.core.APIResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,17 +12,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class LogoutService implements LogoutHandler {
+public class LogoutService {
 
     private final IAuthTokenDao authTokenDao;
 
-    @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+//    @Override
+    public IResultDto<Boolean> logout(HttpServletRequest request, HttpServletResponse response) {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwtToken;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
+            return APIResponseBuilder.internalServerError(false, null, "Logout failed. " + response,
+                    request
+            );
         }
         jwtToken = authHeader.substring(7); // 7 is after "BEARER "
         var storedToken = authTokenDao.findByToken(jwtToken).orElse(null);
@@ -29,5 +33,6 @@ public class LogoutService implements LogoutHandler {
             storedToken.setExpired(true);
             authTokenDao.save(storedToken);
         }
+        return APIResponseBuilder.ok(true);
     }
 }

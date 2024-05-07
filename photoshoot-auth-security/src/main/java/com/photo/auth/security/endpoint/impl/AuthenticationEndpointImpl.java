@@ -2,6 +2,7 @@ package com.photo.auth.security.endpoint.impl;
 
 import com.photo.auth.security.endpoint.AuthenticationEndpoint;
 import com.photo.auth.security.service.AuthenticationService;
+import com.photo.auth.security.service.LogoutService;
 import com.photo.master.data.dto.request.user.*;
 import com.photo.master.data.dto.response.user.AuthenticationResponseDto;
 import com.photo.master.data.dto.response.user.ResponseRegisterUserDto;
@@ -24,6 +25,7 @@ import java.util.Objects;
 public class AuthenticationEndpointImpl implements AuthenticationEndpoint {
 
     private final AuthenticationService authenticationService;
+    private final LogoutService logoutService;
 
     @Override
     public IResultDto<ResponseRegisterUserDto> register(RequestRegisterUserDto request, HttpServletRequest httpServletRequest) {
@@ -69,5 +71,10 @@ public class AuthenticationEndpointImpl implements AuthenticationEndpoint {
     @Override
     public IResultDto<AuthenticationResponseDto> verifyCode(VerificationRequestDto verificationRequestDto, HttpServletRequest httpServletRequest) {
         return null;
+    }
+
+    @Override
+    public IResultDto<Boolean> logout(HttpServletRequest request, HttpServletResponse response) {
+        return logoutService.logout(request, response);
     }
 }

@@ -29,4 +29,7 @@ public interface AuthenticationEndpoint {
 
     @PostMapping(ApplicationConstant.ContextPath.VERIFY)
     IResultDto<AuthenticationResponseDto> verifyCode(@RequestBody VerificationRequestDto verificationRequestDto, HttpServletRequest httpServletRequest);
+
+    @PostMapping(ApplicationConstant.ContextPath.LOGOUT)
+    IResultDto<Boolean> logout(HttpServletRequest request, HttpServletResponse response);
 }

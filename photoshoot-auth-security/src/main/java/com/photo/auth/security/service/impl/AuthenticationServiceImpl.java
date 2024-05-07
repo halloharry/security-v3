@@ -56,17 +56,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ResponseRegisterUserDto registerUser(RequestRegisterUserDto request) throws ServiceException, DuplicateDataException {
+        // Validate required fields
+        if (request.getUsername() == null || request.getUsername().isEmpty()) {
+            throw new ServiceException("Username is required");
+        }
+        if (request.getEmail() == null || request.getEmail().isEmpty()) {
+            throw new ServiceException("Email is required");
+        }
+        if (request.getPassword() == null || request.getPassword().isEmpty()) {
+            throw new ServiceException("Password is required");
+        }
+
+        // Check for duplicate phone number
         AuthUser userMobilePhone = authUserDao.findByUserProfilePhoneNumber(request.getUserProfile().getPhoneNumber());
         if (userMobilePhone != null) {
-            throw new ServiceException("user phone number already taken");
-
+            throw new ServiceException("User phone number already taken");
         }
+
+        // Check for duplicate email
         AuthUser userEmail = authUserDao.findByEmail(request.getEmail());
         if (userEmail != null) {
-            throw new DuplicateDataException("user email already taken");
-
+            throw new DuplicateDataException("User email already taken");
         }
 
+        // Proceed with user registration
         AuthUser authUser = new AuthUser();
         authUser.setUsername(request.getUsername());
         authUser.setEmail(request.getEmail());
@@ -78,14 +91,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         userProfileDao.save(getUserProfileDetail(request, savedUser));
 
-        // if MFA enabled --> Generate Secret
+        // If MFA enabled, generate secret
         if (request.isMfaEnabled()) {
             savedUser.setSecret(tfaService.generateNewSecret());
         }
+
+        // Generate tokens
         var jwtToken = jwtService.generateToken(savedUser);
         var refreshToken = jwtService.generateRefreshToken(savedUser);
         savedUserToken(savedUser, jwtToken);
 
+        // Construct and return response DTO
         return ResponseRegisterUserDto
                 .builder()
                 .secretImageUri(Objects.nonNull(savedUser.getSecret()) ? tfaService.generateQrCodeImageUri(savedUser.getSecret()) : "")
