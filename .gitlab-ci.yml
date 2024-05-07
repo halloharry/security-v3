@@ -1,0 +1,37 @@
+
+stages:
+#  - build
+  - package
+  - deploy-development
+
+variables:
+  DOCKER_IMAGE_NAME: "kira-kira-photo-box"
+  ACCESS_TOKEN: "glpat--3sTiy7bhyfsgxsX_sHx"
+  USERNAME: "ayokerja76"
+
+#services:
+#  - docker:dind
+
+
+#build:
+#  image: docker:stable
+#  stage: build
+#  script:
+#    - docker --version
+#    - docker login registry.gitlab.com -u $USERNAME -p $ACCESS_TOKEN
+#    - docker build -t registry.gitlab.com/kirakira11/photoshoot/$DOCKER_IMAGE_NAME .
+#    - docker push registry.gitlab.com/kirakira11/photoshoot/$DOCKER_IMAGE_NAME
+
+package:
+  image: maven:3-amazoncorretto-17
+  stage: package
+  script:
+    - java --version
+    - mvn clean package -T 2C
+  artifacts:
+    paths:
+      - "**/target/*.jar"
+
+
+include:
+  - "/photoshoot-master-user/.deployer.yml"
